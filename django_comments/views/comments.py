@@ -14,6 +14,7 @@ from django.views.decorators.http import require_POST
 import django_comments
 from django_comments import signals
 from django_comments.views.utils import next_redirect, confirmation_view
+from django_comments.utils import get_ip_address_from_request
 
 class CommentPostBadRequest(http.HttpResponseBadRequest):
     """
@@ -107,7 +108,8 @@ def post_comment(request, next=None, using=None, extra_ctx={}):
 
     # Otherwise create the comment
     comment = form.get_comment_object()
-    comment.ip_address = request.META.get("REMOTE_ADDR", None)
+
+    comment.ip_address = get_ip_address_from_request(request)
     if request.user.is_authenticated():
         comment.user = request.user
 
