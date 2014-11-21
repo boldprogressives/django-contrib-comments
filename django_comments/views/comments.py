@@ -4,7 +4,7 @@ from django import http
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.html import escape
@@ -38,11 +38,11 @@ def post_comment(request, next=None, using=None):
     """
     # Fill out some initial data fields from an authenticated user, if present
     data = request.POST.copy()
-    if request.user.is_authenticated():
-        if not data.get('name', ''):
-            data["name"] = request.user.get_full_name() or request.user.get_username()
-        if not data.get('email', ''):
-            data["email"] = request.user.email
+    if not request.user.is_authenticated():
+        return redirect(settings.LOGIN_URL)
+
+    data["name"] = request.user.get_full_name() or request.user.get_username()
+    data["email"] = request.user.email
 
     # Look up the object we're trying to comment about
     ctype = data.get("content_type")
