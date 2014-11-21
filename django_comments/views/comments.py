@@ -29,7 +29,7 @@ class CommentPostBadRequest(http.HttpResponseBadRequest):
 
 @csrf_protect
 @require_POST
-def post_comment(request, next=None, using=None):
+def post_comment(request, next=None, using=None, extra_ctx={}):
     """
     Post a comment.
 
@@ -93,12 +93,15 @@ def post_comment(request, next=None, using=None):
             "comments/%s/preview.html" % model._meta.app_label,
             "comments/preview.html",
         ]
+        
+        ctx = {"comment": form.data.get("comment", ""),
+               "comment_form": form,
+               "next": data.get("next", next),
+               }
+        ctx.update(extra_ctx)
+
         return render_to_response(
-            template_list, {
-                "comment": form.data.get("comment", ""),
-                "form": form,
-                "next": data.get("next", next),
-            },
+            template_list, ctx,
             RequestContext(request, {})
         )
 
