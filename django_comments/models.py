@@ -23,7 +23,7 @@ class BaseCommentAbstractModel(models.Model):
     content_type = models.ForeignKey(ContentType,
             verbose_name=_('content type'),
             related_name="content_type_set_for_%(class)s")
-    object_pk = models.TextField(_('object ID'))
+    object_pk = models.TextField(_('object ID'), db_index=True)
     content_object = generic.GenericForeignKey(ct_field="content_type", fk_field="object_pk")
 
     # Metadata about the comment
@@ -52,7 +52,7 @@ class Comment(BaseCommentAbstractModel):
     # user; otherwise at least user_name should have been set and the comment
     # was posted by a non-authenticated user.
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('user'),
-                    blank=True, null=True, related_name="%(class)s_comments")
+                             related_name="%(class)s_comments")
     user_name = models.CharField(_("user's name"), max_length=50, blank=True)
     user_email = models.EmailField(_("user's email address"), blank=True)
     user_url = models.URLField(_("user's URL"), blank=True)
@@ -60,12 +60,15 @@ class Comment(BaseCommentAbstractModel):
     comment = models.TextField(_('comment'), max_length=COMMENT_MAX_LENGTH)
 
     # Metadata about the comment
-    submit_date = models.DateTimeField(_('date/time submitted'), default=None)
+    submit_date = models.DateTimeField(_('date/time submitted'), default=None,
+                                       db_index=True)
     ip_address = models.GenericIPAddressField(_('IP address'), unpack_ipv4=True, blank=True, null=True)
     is_public = models.BooleanField(_('is public'), default=True,
+                                    db_index=True,
                     help_text=_('Uncheck this box to make the comment effectively ' \
                                 'disappear from the site.'))
     is_removed = models.BooleanField(_('is removed'), default=False,
+                                     db_index=True,
                     help_text=_('Check this box if the comment is inappropriate. ' \
                                 'A "This comment has been removed" message will ' \
                                 'be displayed instead.'))
