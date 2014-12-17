@@ -119,7 +119,10 @@ class CommentListNode(BaseCommentNode):
         voters = Voter.objects.filter(email__in=emails)
         voters = {voter.email: voter for voter in voters}
         for comment in qs:
-            comment.user.voter = voters[comment.user.email]
+            try:
+                comment.user.voter = voters[comment.user.email]
+            except KeyError:
+                pass
         
         return qs
 
