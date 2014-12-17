@@ -111,18 +111,9 @@ class BaseCommentNode(template.Node):
 class CommentListNode(BaseCommentNode):
     """Insert a list of comments into the context."""
     def get_context_value_from_queryset(self, context, qs):
-        qs = qs.select_related("user")
+        qs = qs.select_related("user", "user__voter")
 
         qs = list(qs)
-        
-        emails = [comment.user.email for comment in qs]
-        voters = Voter.objects.filter(email__in=emails)
-        voters = {voter.email: voter for voter in voters}
-        for comment in qs:
-            try:
-                comment.user.voter = voters[comment.user.email]
-            except KeyError:
-                pass
         
         return qs
 
